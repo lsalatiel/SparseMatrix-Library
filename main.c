@@ -133,12 +133,12 @@ int main(int argc, char **argv) {
     // sparse_matrix_add_element(m1, 7, 2, 1);
 
     // printf("Matrix:\n");
-    // sparse_matrix_standard_print(m1);
+    // sparse_matrix_dense_print(m1);
 
     // SparseMatrix *transpose = sparse_matrix_transpose(m1);
 
     // printf("Matrix Transposed:\n");
-    // sparse_matrix_standard_print(transpose);
+    // sparse_matrix_dense_print(transpose);
 
     // sparse_matrix_destroy(m1);
     // sparse_matrix_destroy(transpose);
@@ -159,9 +159,9 @@ int main(int argc, char **argv) {
     // sparse_matrix_add_element(m1, 5, 2, 2);
 
     // printf("Matrix 1:\n");
-    // sparse_matrix_standard_print(m1);
+    // sparse_matrix_dense_print(m1);
 
-    // // SWAPPING ROWS
+    // SWAPPING ROWS
 
     // int row_1 = 2;
     // int row_2 = 1;
@@ -169,8 +169,12 @@ int main(int argc, char **argv) {
     // SparseMatrix *swap = sparse_matrix_row_swap(m1, row_1, row_2);
 
     // printf("Swapping row %d with %d:\n", row_1, row_2);
+    // sparse_matrix_dense_print(swap);
 
-    // // SWAPPING COLUMNS
+    // sparse_matrix_destroy(m1);
+    // sparse_matrix_destroy(swap);
+
+    // SWAPPING COLUMNS
 
     // int column_1 = 2;
     // int column_2 = 1;
@@ -178,7 +182,7 @@ int main(int argc, char **argv) {
     // SparseMatrix *swap = sparse_matrix_column_swap(m1, column_1, column_2);
 
     // printf("Swapping column %d with %d:\n", column_1, column_2);
-    // sparse_matrix_standard_print(swap);
+    // sparse_matrix_dense_print(swap);
 
     // sparse_matrix_destroy(m1);
     // sparse_matrix_destroy(swap);
@@ -199,7 +203,7 @@ int main(int argc, char **argv) {
     // sparse_matrix_add_element(m1, 5, 2, 2);
 
     // printf("Matrix 1:\n");
-    // sparse_matrix_standard_print(m1);
+    // sparse_matrix_dense_print(m1);
 
     // sparse_matrix_save_binary(m1, "sparse_matrix-binary.bin");
 
@@ -214,44 +218,101 @@ int main(int argc, char **argv) {
     
     // ====================== TESTING SLICE ======================
 
+    // SparseMatrix *m1 = sparse_matrix_construct(5, 5);
+
+    // //sparse_matrix_add_element(m1, 10, 0, 0);
+    // //sparse_matrix_add_element(m1, 6, 0, 1);
+    // //sparse_matrix_add_element(m1, 20, 0, 2);
+    // //sparse_matrix_add_element(m1, 2, 0, 3);
+    // //sparse_matrix_add_element(m1, 10, 0, 4);
+    // sparse_matrix_add_element(m1, 40, 1, 0);
+    // sparse_matrix_add_element(m1, 30, 1, 1);
+    // //sparse_matrix_add_element(m1, 9, 1, 2);
+    // sparse_matrix_add_element(m1, 50, 1, 3);
+    // //sparse_matrix_add_element(m1, 9, 1, 4);
+    // sparse_matrix_add_element(m1, 80, 2, 0);
+    // sparse_matrix_add_element(m1, 100, 2, 1);
+    // sparse_matrix_add_element(m1, 40, 2, 2);
+    // //sparse_matrix_add_element(m1, 5, 2, 3);
+    // sparse_matrix_add_element(m1, 50, 2, 4);
+    // sparse_matrix_add_element(m1, 60, 3, 0);
+    // sparse_matrix_add_element(m1, 70, 3, 1);
+    // //sparse_matrix_add_element(m1, 50, 3, 2);
+    // sparse_matrix_add_element(m1, 50, 3, 3);
+    // //sparse_matrix_add_element(m1, 50, 3, 4);
+    // sparse_matrix_add_element(m1, 90, 4, 0);
+    // sparse_matrix_add_element(m1, 80, 4, 1);
+    // //sparse_matrix_add_element(m1, 50, 4, 2);
+    // sparse_matrix_add_element(m1, 70, 4, 3);
+    // //sparse_matrix_add_element(m1, 50, 4, 4);
+
+    // printf("Matrix 1:\n");
+    // sparse_matrix_dense_print(m1);
+
+    // SparseMatrix *slice = sparse_matrix_slice(m1, 0, 1, 4, 2);
+
+    // printf("Slice:\n");
+    // sparse_matrix_dense_print(slice);
+
+    // sparse_matrix_destroy(m1);
+    // sparse_matrix_destroy(slice);
+
+
+    // ====================== TESTING CONVOLUTION ======================
+
     SparseMatrix *m1 = sparse_matrix_construct(5, 5);
 
-    sparse_matrix_add_element(m1, 10, 0, 0);
-    //sparse_matrix_add_element(m1, 6, 0, 1);
+    sparse_matrix_add_element(m1, 0, 0, 0);
+    sparse_matrix_add_element(m1, 0, 0, 1);
     sparse_matrix_add_element(m1, 20, 0, 2);
-    //sparse_matrix_add_element(m1, 2, 0, 3);
-    sparse_matrix_add_element(m1, 10, 0, 4);
-    sparse_matrix_add_element(m1, 40, 1, 0);
-    sparse_matrix_add_element(m1, 30, 1, 1);
+    sparse_matrix_add_element(m1, 1, 0, 3);
+    //sparse_matrix_add_element(m1, 10, 0, 4);
+    sparse_matrix_add_element(m1, 0, 1, 0);
+    sparse_matrix_add_element(m1, 0, 1, 1);
     //sparse_matrix_add_element(m1, 9, 1, 2);
-    sparse_matrix_add_element(m1, 50, 1, 3);
+    sparse_matrix_add_element(m1, 1, 1, 3);
     //sparse_matrix_add_element(m1, 9, 1, 4);
-    sparse_matrix_add_element(m1, 80, 2, 0);
-    sparse_matrix_add_element(m1, 100, 2, 1);
-    sparse_matrix_add_element(m1, 40, 2, 2);
+    sparse_matrix_add_element(m1, 1, 2, 0);
+    sparse_matrix_add_element(m1, 1, 2, 1);
+    sparse_matrix_add_element(m1, -1, 2, 2);
     //sparse_matrix_add_element(m1, 5, 2, 3);
-    sparse_matrix_add_element(m1, 50, 2, 4);
-    sparse_matrix_add_element(m1, 60, 3, 0);
-    sparse_matrix_add_element(m1, 70, 3, 1);
+    sparse_matrix_add_element(m1, -1, 2, 4);
+    sparse_matrix_add_element(m1, 1, 3, 0);
+    sparse_matrix_add_element(m1, 1, 3, 1);
     //sparse_matrix_add_element(m1, 50, 3, 2);
-    sparse_matrix_add_element(m1, 50, 3, 3);
+    sparse_matrix_add_element(m1, -1, 3, 3);
     //sparse_matrix_add_element(m1, 50, 3, 4);
-    sparse_matrix_add_element(m1, 90, 4, 0);
-    sparse_matrix_add_element(m1, 80, 4, 1);
+    sparse_matrix_add_element(m1, -1, 4, 0);
+    sparse_matrix_add_element(m1, -1, 4, 1);
     //sparse_matrix_add_element(m1, 50, 4, 2);
-    sparse_matrix_add_element(m1, 70, 4, 3);
+    sparse_matrix_add_element(m1, 1, 4, 3);
     //sparse_matrix_add_element(m1, 50, 4, 4);
 
     printf("Matrix 1:\n");
-    sparse_matrix_standard_print(m1);
+    sparse_matrix_dense_print(m1);
 
-    SparseMatrix *slice = sparse_matrix_slice(m1, 0, 1, 4, 2);
+    SparseMatrix *kernel = sparse_matrix_construct(3, 3);
+    sparse_matrix_add_element(kernel, 1, 0, 0);
+    sparse_matrix_add_element(kernel, 0, 0, 1);
+    sparse_matrix_add_element(kernel, -1, 0, 2);
+    sparse_matrix_add_element(kernel, 1, 1, 0);
+    sparse_matrix_add_element(kernel, 0, 1, 1);
+    sparse_matrix_add_element(kernel, -1, 1, 2);
+    sparse_matrix_add_element(kernel, 1, 2, 0);
+    sparse_matrix_add_element(kernel, 0, 2, 1);
+    sparse_matrix_add_element(kernel, -1, 2, 2);
 
-    printf("Slice:\n");
-    sparse_matrix_standard_print(slice);
+    printf("Kernel:\n");
+    sparse_matrix_dense_print(kernel);
+
+    SparseMatrix *convolution = sparse_matrix_convolution(m1, kernel);
+    
+    printf("Convolution:\n");
+    sparse_matrix_dense_print(convolution);
 
     sparse_matrix_destroy(m1);
-    sparse_matrix_destroy(slice);
+    sparse_matrix_destroy(kernel);
+    sparse_matrix_destroy(convolution);
 
     return 0;
 }

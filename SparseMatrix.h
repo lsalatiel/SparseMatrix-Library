@@ -43,7 +43,7 @@ void sparse_matrix_print(SparseMatrix *matrix);
  * 
  * @param matrix a sparse matrix structure
  */
-void sparse_matrix_standard_print(SparseMatrix* matrix);
+void sparse_matrix_dense_print(SparseMatrix* matrix);
 
 /**
  * @brief returns the value of the element in a position (row, column) of a sparse matrix
@@ -136,7 +136,9 @@ void sparse_matrix_save_binary(SparseMatrix *matrix, char* file_name);
 SparseMatrix *sparse_matrix_read_binary(char* file_name);
 
 /**
- * @brief returns a slice cutted in the positions (row_1, column_1), (row_2, column_2) of the sparse matrix
+ * @brief returns a slice cutted in the positions (row_1, column_1), (row_2, column_2) of the sparse matrix.\n
+ * If row_1 or column_1 are less than the row/column size of the matrix, then it will be created a row/column with zeros/NULL nodes.\n
+ * The same goes for row_2 and column_2 if they are greater than the row/column size of the matrix
  * 
  * @param matrix a sparse matrix structure
  * @param row_1 the row of the first position that determinates the slice
@@ -146,5 +148,14 @@ SparseMatrix *sparse_matrix_read_binary(char* file_name);
  * @return SparseMatrix* a slice of the matrix as a new sparse matrix
  */
 SparseMatrix *sparse_matrix_slice(SparseMatrix *matrix, int row_1, int column_1, int row_2, int column_2);
+
+/**
+ * @brief calculates the convolution between a kernel and a sparse matrix
+ * 
+ * @param matrix a sparse matrix structure
+ * @param kernel a convolution matrix
+ * @return SparseMatrix* returns the convolution matrix
+ */
+SparseMatrix *sparse_matrix_convolution(SparseMatrix *matrix, SparseMatrix *kernel);
 
 #endif

@@ -59,7 +59,7 @@ void sparse_matrix_destroy(SparseMatrix *matrix) {
     free(matrix);
 }
 
-bool _check_valid_matrix_dimensions(int row, int column, int row_size, int column_size) {
+bool _is_valid_matrix_dimensions(int row, int column, int row_size, int column_size) {
     if(row >= row_size || row < 0 || column >= column_size || column < 0) {
         printf("Position (%d,%d) not compatible with matrix dimensions\n", row, column);
         return false;
@@ -154,7 +154,7 @@ void sparse_matrix_add_element(SparseMatrix *matrix, data_type value, int row, i
         return;
     }
 
-    if(!_check_valid_matrix_dimensions(row, column, matrix->row_size, matrix->column_size)) return;
+    if(!_is_valid_matrix_dimensions(row, column, matrix->row_size, matrix->column_size)) return;
 
     Node* n = NULL;
 
@@ -177,7 +177,7 @@ void sparse_matrix_add_element(SparseMatrix *matrix, data_type value, int row, i
 void _print_node_recursive(Node *n) {
     if(n == NULL) return;
 
-    printf("(%d, %d)%.2f\n", n->row, n->column, n->value);
+    printf("(%d, %d) = %.2f\n", n->row, n->column, n->value);
     _print_node_recursive(n->row_next);
 }
 
@@ -200,28 +200,26 @@ void sparse_matrix_print(SparseMatrix* matrix) {
     }
 }
 
-void sparse_matrix_standard_print(SparseMatrix* matrix) {
+void sparse_matrix_dense_print(SparseMatrix* matrix) {
     if(matrix == NULL) {
         printf("Error: matrix is NULL\n");
         return;
     }
 
     for(int i = 0; i < matrix->row_size; i++) {
-        if(matrix->row_heads[i] != NULL) {
-            Node* current = matrix->row_heads[i];
+        Node* current = matrix->row_heads[i];
 
-            for(int j = 0; j < matrix->column_size; j++) {
-                if(current == NULL) {
-                    printf("0.00 ");
-                    continue;
-                }
-                if(current->column == j) {
-                    printf("%.2f ", current->value);
-                    current = current->row_next;
-                }
-                else
-                    printf("0.00 ");
+        for(int j = 0; j < matrix->column_size; j++) {
+            if(current == NULL) {
+                printf("0.00 ");
+                continue;
             }
+            if(current->column == j) {
+                printf("%.2f ", current->value);
+                current = current->row_next;
+            }
+            else
+                printf("0.00 ");
         }
         printf("\n");
     }
@@ -233,7 +231,7 @@ data_type sparse_matrix_get(SparseMatrix *matrix, int row, int column) {
         return 0;
     }
 
-    if(!_check_valid_matrix_dimensions(row, column, matrix->row_size, matrix->column_size)) {
+    if(!_is_valid_matrix_dimensions(row, column, matrix->row_size, matrix->column_size)) {
         sparse_matrix_destroy(matrix);
         exit(1);
     }
@@ -454,28 +452,16 @@ SparseMatrix *sparse_matrix_row_swap(SparseMatrix *matrix, int row_1, int row_2)
 
     SparseMatrix *matrix_swap = sparse_matrix_construct(matrix->row_size, matrix->column_size);
 
-    Node *n1 = matrix->row_heads[row_1];
-
-    while(n1 != NULL) {
-        sparse_matrix_add_element(matrix_swap, n1->value, row_2, n1->column);
-        n1 = n1->row_next;
-    }
-
-    Node *n2 = matrix->row_heads[row_2];
-
-    while(n2 != NULL) {
-        sparse_matrix_add_element(matrix_swap, n2->value, row_1, n2->column);
-        n2 = n2->row_next;
-    }
-
     for(int i = 0; i < matrix->row_size; i++) {
-        if(i == row_1 || i == row_2)
-            continue;
-        
         Node *current = matrix->row_heads[i];
 
         while(current != NULL) {
-            sparse_matrix_add_element(matrix_swap, current->value, current->row, current->column);
+            if(i == row_1)
+                sparse_matrix_add_element(matrix_swap, current->value, row_2, current->column);
+            else if(i == row_2)
+                sparse_matrix_add_element(matrix_swap, current->value, row_1, current->column);
+            else
+                sparse_matrix_add_element(matrix_swap, current->value, current->row, current->column);
             current = current->row_next;
         }
     }
@@ -496,28 +482,16 @@ SparseMatrix *sparse_matrix_column_swap(SparseMatrix *matrix, int column_1, int 
 
     SparseMatrix *matrix_swap = sparse_matrix_construct(matrix->row_size, matrix->column_size);
 
-    Node *n1 = matrix->column_heads[column_1];
-
-    while(n1 != NULL) {
-        sparse_matrix_add_element(matrix_swap, n1->value, n1->row, column_2);
-        n1 = n1->column_next;
-    }
-
-    Node *n2 = matrix->column_heads[column_2];
-
-    while(n2 != NULL) {
-        sparse_matrix_add_element(matrix_swap, n2->value, n2->row, column_1);
-        n2 = n2->column_next;
-    }
-
     for(int i = 0; i < matrix->column_size; i++) {
-        if(i == column_1 || i == column_2)
-            continue;
-        
         Node *current = matrix->column_heads[i];
 
         while(current != NULL) {
-            sparse_matrix_add_element(matrix_swap, current->value, current->row, current->column);
+            if(i == column_1)
+                sparse_matrix_add_element(matrix_swap, current->value, current->row, column_2);
+            else if(i == column_2)
+                sparse_matrix_add_element(matrix_swap, current->value, current->row, column_1);
+            else
+                sparse_matrix_add_element(matrix_swap, current->value, current->row, current->column);
             current = current->column_next;
         }
     }
@@ -590,9 +564,9 @@ SparseMatrix *sparse_matrix_slice(SparseMatrix *matrix, int row_1, int column_1,
         return NULL;
     }
 
-    if(!_check_valid_matrix_dimensions(row_1, column_1, matrix->row_size, matrix->column_size) || !_check_valid_matrix_dimensions(row_2, column_2, matrix->row_size, matrix->column_size)) {
-        return NULL;
-    }
+    // if(!_is_valid_matrix_dimensions(row_1, column_1, matrix->row_size, matrix->column_size) || !_is_valid_matrix_dimensions(row_2, column_2, matrix->row_size, matrix->column_size)) {
+    //     return NULL;
+    // }
 
     if(row_1 > row_2 || column_1 > column_2) {
         printf("Error: The first position must be above the second.\n");
@@ -602,9 +576,14 @@ SparseMatrix *sparse_matrix_slice(SparseMatrix *matrix, int row_1, int column_1,
     SparseMatrix *slice = sparse_matrix_construct(row_2 - row_1 + 1, column_2 - column_1 + 1);
 
     for(int i = row_1; i <= row_2; i++) {
+        if(i < 0 || i >= matrix->row_size)
+            continue;
+
         Node *current = matrix->row_heads[i];
 
-        while(current != NULL){
+        for(int j = 0; current != NULL; j++){
+            if(j < 0 || j >= matrix->column_size)
+                continue;
             if(current->column < column_1) {
                 current = current->row_next;
                 continue;
@@ -617,4 +596,69 @@ SparseMatrix *sparse_matrix_slice(SparseMatrix *matrix, int row_1, int column_1,
     }
     
     return slice;
+}
+
+bool _is_valid_slice(SparseMatrix *slice) {
+    bool found = false;
+    
+    for(int i = 0; i < slice->row_size; i++) {
+        if(slice->row_heads[i] != NULL)
+            found = true;
+    }
+
+    return found;
+}
+
+SparseMatrix *sparse_matrix_convolution(SparseMatrix *matrix, SparseMatrix *kernel) {
+    if(matrix == NULL || kernel == NULL) {
+        printf("Error: matrix is NULL\n");
+        return NULL;
+    }
+
+    if(kernel->row_size != kernel->column_size || kernel->row_size % 2 == 0) {
+        printf("Error: Invalid kernel dimensions. The number of rows and columns must be equals and odds\n");
+        return NULL;
+    }
+
+    SparseMatrix *convolution = sparse_matrix_construct(matrix->row_size, matrix->column_size);
+
+    for(int i = 0; i < matrix->row_size; i++) {
+        for(int j = 0; j < matrix->column_size; j++) {
+            int row_1 = i - kernel->row_size / 2;
+            int col_1 = j - kernel->column_size / 2;
+            int row_2 = i + kernel->row_size / 2;
+            int col_2 = j + kernel->column_size / 2;
+
+            SparseMatrix *slice_matrix = sparse_matrix_slice(matrix, row_1, col_1, row_2, col_2);
+            if(!_is_valid_slice(slice_matrix)) {
+                sparse_matrix_destroy(slice_matrix);
+                continue;
+            }
+
+            if(slice_matrix == NULL) {
+                sparse_matrix_destroy(slice_matrix);
+                continue;
+            }
+
+            SparseMatrix *multip_matrix = sparse_matrix_per_element_multiply(slice_matrix, kernel);
+            
+            data_type sum = 0;
+
+            for(int k = 0; k < multip_matrix->row_size; k++) {
+                Node *current = multip_matrix->row_heads[k];
+
+                while(current != NULL) {
+                    sum += current->value;
+                    current = current->row_next;
+                }
+            }
+
+            sparse_matrix_add_element(convolution, sum, i, j);
+
+            sparse_matrix_destroy(slice_matrix);
+            sparse_matrix_destroy(multip_matrix);
+        }
+    }
+
+    return convolution;
 }
