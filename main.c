@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char **argv) {
+int main() {
 
     // ====================== TESTING THE FIRST FUNCTIONS TILL THE MULTIPLICATION BY A SCALAR ======================
 
