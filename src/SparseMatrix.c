@@ -43,6 +43,9 @@ void sparse_matrix_destroy(SparseMatrix *matrix) {
     for(int i = 0; i < matrix->row_size; i++) {
         if(matrix->row_heads[i] != NULL) {
             _node_destroy_recursive(matrix->row_heads[i]); // destroys the node from top to bottom
+            
+            // non-recursive function
+
             // Node *current = matrix->row_heads[i];
             // Node *next;
             // while(current != NULL) {
@@ -68,6 +71,16 @@ bool _is_valid_matrix_dimensions(int row, int column, int row_size, int column_s
     return true;
 }
 
+/**
+ * @brief adds an element to the row linked list
+ * Complexity: O(n), n = number of rows
+ * 
+ * @param matrix a sparse matrix structure
+ * @param value the value to be added
+ * @param row 
+ * @param column 
+ * @param n a node created from the value. It can be NULL if the value is 0
+ */
 void _matrix_add_element_row(SparseMatrix *matrix, int value, int row, int column, Node *n) {
     Node *current = matrix->row_heads[row];
     Node *prev = NULL;
@@ -106,6 +119,17 @@ void _matrix_add_element_row(SparseMatrix *matrix, int value, int row, int colum
         prev->row_next = n;
 }
 
+
+/**
+ * @brief adds an element to the column linked list
+ * Complexity: O(m), m = number of columns
+ * 
+ * @param matrix a sparse matrix structure
+ * @param value the value to be added
+ * @param row 
+ * @param column 
+ * @param n a node created from the value. It can be NULL if the value is 0
+ */
 void _matrix_add_element_column(SparseMatrix *matrix, int value, int row, int column, Node *n) {
     Node *current = matrix->column_heads[column];
     Node *prev = NULL;
@@ -189,7 +213,7 @@ void sparse_matrix_print(SparseMatrix* matrix) {
 
     for(int i = 0; i < matrix->row_size; i++) {
         if(matrix->row_heads[i] != NULL) {
-            //_print_node_recursive(matrix->row_heads[i]); // it takes longer than the non recursive print function
+            //_print_node_recursive(matrix->row_heads[i]); // recursive function
             Node* current = matrix->row_heads[i];
 
             while(current != NULL) {
@@ -268,30 +292,18 @@ SparseMatrix *sparse_matrix_sum(SparseMatrix *matrix_1, SparseMatrix *matrix_2) 
         Node *current_1 = matrix_1->row_heads[i];
         Node *current_2 = matrix_2->row_heads[i];
 
-        data_type value_1 = 0, value_2 = 0; 
-
-        int j = 0; // column parameter
-
-        while(current_1 != NULL || current_2 != NULL) {
-            value_1 = 0;
-            value_2 = 0;
-
-            if(current_1 != NULL && current_1->column == j) 
-                value_1 = current_1->value;
-            if(current_2 != NULL && current_2->column == j)
-                value_2 = current_2->value;
-
-            if(current_1 != NULL && current_1->column == j)
-                sparse_matrix_add_element(matrix_sum, value_1 + value_2, current_1->row, current_1->column);
-            else if(current_2 != NULL && current_2->column == j)
-                sparse_matrix_add_element(matrix_sum, value_1 + value_2, current_2->row, current_2->column);
-            
-            if(current_1 != NULL && current_1->column == j)
-                current_1 = current_1->row_next;
-            if(current_2 != NULL && current_2->column == j)
+        while(current_1 != NULL && current_2 != NULL) {
+            if(current_1->column > current_2->column) {
                 current_2 = current_2->row_next;
-
-            j++;
+            }
+            else if(current_1->column < current_2->column) {
+                current_1 = current_1->row_next;
+            }
+            else {
+                sparse_matrix_add_element(matrix_sum, current_1->value + current_2->value, current_1->row, current_1->column);
+                current_1 = current_1->row_next;
+                current_2 = current_2->row_next;
+            }
         }
     }
 
@@ -340,30 +352,23 @@ SparseMatrix *sparse_matrix_multiply(SparseMatrix *matrix_1, SparseMatrix *matri
         for(int j = 0; j < matrix_2->column_size; j++) {
             Node *current_1 = matrix_1->row_heads[i];
             Node *current_2 = matrix_2->column_heads[j];
-            
-            int k = 0;
 
             data_type sum = 0;
 
-            while(current_1 != NULL || current_2 != NULL) {
-                int value_1 = 0;
-                int value_2 = 0;
-                
-                if(current_1 != NULL && current_1->column == k)
-                    value_1 = current_1->value;
-                if(current_2 != NULL && current_2->row == k)
-                    value_2 = current_2->value;
-
-                sum += value_1 * value_2;
-
-                if(current_1 != NULL && current_1->column == k)
+            while(current_1 != NULL && current_2 != NULL) {
+                if(current_1->column < current_2->row) {
+                    current_1 = current_1->column_next;
+                }
+                else if(current_1->column > current_2->row) {
+                    current_2 = current_2->row_next;
+                }
+                else {
+                    sum += current_1->value * current_2->value;
                     current_1 = current_1->row_next;
-                if(current_2 != NULL && current_2->row == k)
                     current_2 = current_2->column_next;
-
-                k++;
+                }
             }
-
+            
             sparse_matrix_add_element(matrix_result, sum, i, j);
         }
     }
@@ -388,30 +393,18 @@ SparseMatrix *sparse_matrix_per_element_multiply(SparseMatrix *matrix_1, SparseM
         Node *current_1 = matrix_1->row_heads[i];
         Node *current_2 = matrix_2->row_heads[i];
 
-        data_type value_1 = 0, value_2 = 0; 
-
-        int j = 0; // column parameter
-
-        while(current_1 != NULL || current_2 != NULL) {
-            value_1 = 0;
-            value_2 = 0;
-
-            if(current_1 != NULL && current_1->column == j) 
-                value_1 = current_1->value;
-            if(current_2 != NULL && current_2->column == j)
-                value_2 = current_2->value;
-
-            if(current_1 != NULL && current_1->column == j)
-                sparse_matrix_add_element(result, value_1 * value_2, current_1->row, current_1->column);
-            else if(current_2 != NULL && current_2->column == j)
-                sparse_matrix_add_element(result, value_1 * value_2, current_2->row, current_2->column);
-            
-            if(current_1 != NULL && current_1->column == j)
-                current_1 = current_1->row_next;
-            if(current_2 != NULL && current_2->column == j)
+        while(current_1 != NULL && current_2 != NULL) {
+            if(current_1->column > current_2->column) {
                 current_2 = current_2->row_next;
-
-            j++;
+            }
+            else if(current_1->column < current_2->column) {
+                current_1 = current_1->row_next;
+            }
+            else {
+                sparse_matrix_add_element(result, current_1->value * current_2->value, current_1->row, current_1->column);
+                current_1 = current_1->row_next;
+                current_2 = current_2->row_next;
+            }
         }
     }
 
@@ -542,12 +535,17 @@ SparseMatrix *sparse_matrix_read_binary(char* file_name) {
     for(int i = 0; i < matrix->row_size; i++) {
         for(int j = 0; j < matrix->column_size; j++) {
             data_type value = 0;
-            int row = 0, column = 0;
+            int row = -1, column = -1;
 
             fread(&value, sizeof(data_type), 1, file);
             fread(&row, sizeof(int), 1, file);
             fread(&column, sizeof(int), 1, file);
 
+            if(row == -1 || column == -1) {
+                fclose(file);
+                return matrix;
+            }
+                
             if(value != 0)
                 sparse_matrix_add_element(matrix, value, row, column);
         }
@@ -563,10 +561,6 @@ SparseMatrix *sparse_matrix_slice(SparseMatrix *matrix, int row_1, int column_1,
         printf("Error: matrix is NULL\n");
         return NULL;
     }
-
-    // if(!_is_valid_matrix_dimensions(row_1, column_1, matrix->row_size, matrix->column_size) || !_is_valid_matrix_dimensions(row_2, column_2, matrix->row_size, matrix->column_size)) {
-    //     return NULL;
-    // }
 
     if(row_1 > row_2 || column_1 > column_2) {
         printf("Error: The first position must be above the second.\n");
@@ -598,15 +592,20 @@ SparseMatrix *sparse_matrix_slice(SparseMatrix *matrix, int row_1, int column_1,
     return slice;
 }
 
+/**
+ * @brief checks if the slice is not empty
+ * Complexity: O(n), n = number of rows. The worst case is when all the row_heads are NULL
+ * 
+ * @param slice 
+ * @return returns a boolean value. If the slice is empty, returns false. Otherwise, it returns true
+ */
 bool _is_valid_slice(SparseMatrix *slice) {
-    bool found = false;
-    
     for(int i = 0; i < slice->row_size; i++) {
         if(slice->row_heads[i] != NULL)
-            found = true;
+            return true;
     }
 
-    return found;
+    return false;
 }
 
 SparseMatrix *sparse_matrix_convolution(SparseMatrix *matrix, SparseMatrix *kernel) {
@@ -615,8 +614,8 @@ SparseMatrix *sparse_matrix_convolution(SparseMatrix *matrix, SparseMatrix *kern
         return NULL;
     }
 
-    if(kernel->row_size != kernel->column_size || kernel->row_size % 2 == 0) {
-        printf("Error: Invalid kernel dimensions. The number of rows and columns must be equals and odds\n");
+    if(kernel->row_size % 2 == 0 || kernel->column_size % 2 == 0) {
+        printf("Error: Invalid kernel dimensions. The number of rows and columns must be odds\n");
         return NULL;
     }
 
@@ -630,12 +629,12 @@ SparseMatrix *sparse_matrix_convolution(SparseMatrix *matrix, SparseMatrix *kern
             int col_2 = j + kernel->column_size / 2;
 
             SparseMatrix *slice_matrix = sparse_matrix_slice(matrix, row_1, col_1, row_2, col_2);
-            if(!_is_valid_slice(slice_matrix)) {
+            if(slice_matrix == NULL) {
                 sparse_matrix_destroy(slice_matrix);
                 continue;
             }
 
-            if(slice_matrix == NULL) {
+            if(!_is_valid_slice(slice_matrix)) {
                 sparse_matrix_destroy(slice_matrix);
                 continue;
             }
