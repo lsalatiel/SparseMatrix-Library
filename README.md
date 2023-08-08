@@ -9,6 +9,7 @@ Using a sparse matrix, instead of a dense matrix, saves memory because there are
 In short, we use sparses matrices trying to achieve gains in performance.
 
 For this library, it's being used two linked lists. One containing the first elements in the rows and the other with the first elements of the columns.
+
 Each element (node) of the list contains its value, row, column and pointers to the next element in the row and in the column.
 
 
