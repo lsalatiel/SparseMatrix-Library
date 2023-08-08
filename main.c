@@ -1,4 +1,4 @@
-#include "SparseMatrix.h"
+#include "headers/SparseMatrix.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -30,7 +30,7 @@ int main() {
     transpose();
 
     // ====================== TESTING SWAP ======================
-    printf("================= TESTING TRANSPOSE =================\n\n");
+    printf("================= TESTING SWAPS =================\n\n");
     swaps();
 
     // ====================== TESTING BINARY ======================
@@ -63,6 +63,8 @@ void get_sum_scalar() {
     
     printf("Matrix 1:\n");
     sparse_matrix_print(matrix);
+    printf("Dense print:\n");
+    sparse_matrix_dense_print(matrix);
 
     float key = 0;
     key = sparse_matrix_get(matrix, 1, 1);
@@ -262,6 +264,7 @@ void binary() {
 
     sparse_matrix_save_binary(m1, "sparse_matrix-binary.bin");
 
+    printf("Reading from binary file:\n");
     SparseMatrix *m2 = sparse_matrix_read_binary("sparse_matrix-binary.bin");
 
     printf("Matrix 2:\n");

@@ -183,11 +183,11 @@ SparseMatrix *sparse_matrix_slice(SparseMatrix *matrix, int row_1, int column_1,
 
 /**
  * @brief calculates the convolution between a kernel and a sparse matrix.\n
- * Complexity: O(n^2 * m^2 * k^4 * l^3), n = number of rows of the matrix, m = number of columns of the matrix, k = number of rows of the kernel, l = number of columns of the kernel
+ * Complexity: O(n^2 * m^2 * k^6 * l^5), n = number of rows of the matrix, m = number of columns of the matrix, k = number of rows of the kernel, l = number of columns of the kernel
  * The worst case is when it needs to iterate through all the indexes of both matrices. As we're talking about a sparse matrix, you should never get the worst case.
  * 
  * @param matrix a sparse matrix structure
- * @param kernel a convolution matrix
+ * @param kernel a convolution matrix. The kernel must have odd dimensions
  * @return SparseMatrix* returns the convolution matrix
  */
 SparseMatrix *sparse_matrix_convolution(SparseMatrix *matrix, SparseMatrix *kernel);

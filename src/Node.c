@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "../headers/Node.h"
 #include <stdio.h>
 #include <stdlib.h>
 

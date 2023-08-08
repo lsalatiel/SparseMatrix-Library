@@ -1,4 +1,4 @@
-#include "SparseMatrix.h"
+#include "../headers/SparseMatrix.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -292,11 +292,23 @@ SparseMatrix *sparse_matrix_sum(SparseMatrix *matrix_1, SparseMatrix *matrix_2) 
         Node *current_1 = matrix_1->row_heads[i];
         Node *current_2 = matrix_2->row_heads[i];
 
-        while(current_1 != NULL && current_2 != NULL) {
-            if(current_1->column > current_2->column) {
+        while(current_1 != NULL || current_2 != NULL) {
+            if(current_1 == NULL) {
+                sparse_matrix_add_element(matrix_sum, current_2->value, current_2->row, current_2->column);
+                current_2 = current_2->row_next;
+                continue;
+            }
+            else if(current_2 == NULL) {
+                sparse_matrix_add_element(matrix_sum, current_1->value, current_1->row, current_1->column);
+                current_1 = current_1->row_next;
+                continue;
+            }
+            else if(current_1->column > current_2->column) {
+                sparse_matrix_add_element(matrix_sum, current_2->value, current_2->row, current_2->column);
                 current_2 = current_2->row_next;
             }
             else if(current_1->column < current_2->column) {
+                sparse_matrix_add_element(matrix_sum, current_1->value, current_1->row, current_1->column);
                 current_1 = current_1->row_next;
             }
             else {
@@ -515,6 +527,7 @@ void sparse_matrix_save_binary(SparseMatrix *matrix, char* file_name) {
     }
 
     fclose(file);
+    printf("Matrix saved in '%s' successfully\n", file_name);
 }
 
 SparseMatrix *sparse_matrix_read_binary(char* file_name) {
